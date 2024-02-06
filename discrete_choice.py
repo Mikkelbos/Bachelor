@@ -29,11 +29,11 @@ def clogit(y, x, cov_type='Ainv',theta0=None, deriv=0, quiet=False):
     if theta0 is None: 
     	theta0=np.zeros((K,1)) 
 
-    res=M.estimation(Qfun, theta0, deriv, cov_type, parnames=xvars)
+    res = M.estimation(Qfun, theta0, deriv, cov_type, parnames=xvars)
     # v, p, dv = Qfun(res.theta_hat, out='predict')
     res.update(dict(zip(['yvar', 'xvars', 'N','K', 'n'], ['y', xvars, N, K, N])))
 
-    if quiet==False:    
+    if quiet==False:
         print('Conditional logit')
         print('Initial log-likelihood', -Qfun(theta0, 'Q'))
         print('Initial gradient\n', -Qfun(theta0, 'dQ'))
@@ -76,7 +76,7 @@ def logccp(v, y=None, sigma=1):
     # If y=None return logccp corresponding to all choices
     # if y is Nx1 vector of choice indexes, return likelihood
 
-    ev=logsum(v, sigma) 	# Expected utility (always larger than V)
+    ev = logsum(v, sigma) 	# Expected utility (always larger than V)
     if y is not None:  		
     	N, J=v.shape
     	idx=y[:,] + J*np.arange(0, N)
