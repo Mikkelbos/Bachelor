@@ -10,12 +10,12 @@ def estimation(Qfun, theta0, deriv=0, cov_type ='sandwich', parnames='', output=
     tic = time.perf_counter() 
 
     # Q: Sample objective function to minimize (e.g. sample average of negative log-livelihood)
-    Q     = lambda theta:  Qfun(theta, out='Q');
+    Q = lambda theta:  Qfun(theta, out='Q')
 
     # dQ: Derivative of sample objective function wrt parameters theta (function returns size K array)
     dQ = None
     if deriv>0: # use user-supplied 1 order derivatives
-        dQ = lambda theta:  Qfun(theta, out='dQ');
+        dQ = lambda theta:  Qfun(theta, out='dQ')
 
     hess = None
     if deriv>1: # use user-supplied 2 order derivatives

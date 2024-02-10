@@ -115,8 +115,8 @@ def Q_clogit(theta, y, x, out='Q'):
     idx=y[:,] + J*np.arange(0, N)
     dvj=dv.reshape(N*J, K)[idx,:] 	# pick choice specific values corresponding to y 
 
-    s_i=dvj -  np.sum(p.reshape(N,J,1)*dv, axis=1)
-    g=-np.mean(s_i, axis=0)
+    s_i = dvj -  np.sum(p.reshape(N,J,1)*dv, axis=1)
+    g = -np.mean(s_i, axis=0)
     
     if out=='s_i': return s_i                     # Return s_i: NxK array with scores
     if out=='dQ':  return g;  # Return dQ: array of size K derivative of sample objective function
@@ -134,9 +134,8 @@ def logsum(v, sigma=1):
 	
 def logccp(v, y=None, sigma=1):
     # Log of conditional choice probabilities 
-    # If y=None return logccp corresponding to all choices
+    # If y = None return logccp corresponding to all choices
     # if y is Nx1 vector of choice indexes, return likelihood
-
     ev = logsum(v, sigma) 	# Expected utility (always larger than V)
     if y is not None:  		
     	N, J=v.shape
