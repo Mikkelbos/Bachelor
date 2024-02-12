@@ -8,6 +8,7 @@ from numpy import random
 import time
 from scipy.stats import genextreme
 
+#importet fra mestim.py
 def estimation(Qfun, theta0, deriv=0, cov_type ='sandwich', parnames='', output=False): 
 
     tic = time.perf_counter() 
@@ -67,24 +68,26 @@ def avar(s_i, Ainv, cov_type ='sandwich'):
     if cov_type=='sandwich':    return Ainv @ B @ Ainv/n
 
 
+#Original discrete_choice.py
 def sim_data(N, J, theta) -> tuple:
     k = theta.size
     
     x = random.normal(size=(N, J, k)) + np.linspace(3,5,J).reshape(1,J, 1)
-    v = utiliy(theta, x)
+    v = utiliy(theta, x) #returnere v = (x @ theta)
     e = genextreme.ppf(random.uniform(size=(N, J)), c=0)
-    u = v + e # utility
-    
+    u = v + e # utility. Tillægger nytte støj i.i.d. ekstreme værdi
+
     # Find which choice that maximizes utility.
     y = u.argmax(axis=1)
     
     label = ['y', 'x']
     d=dict(zip(label, [y, x]))
-    return d
+    return d, y , x
 
 def clogit(y, x, cov_type='Ainv',theta0=None, deriv=0, quiet=False): 
 	# Objective function and derivatives for 
     N, J, K, palt, xalt, xvars = labels(x)
+    # labels and dimensions for plotting
     Qfun     = lambda theta, out:  Q_clogit(theta, y, x, out)
 
     if theta0 is None: 
@@ -103,8 +106,8 @@ def clogit(y, x, cov_type='Ainv',theta0=None, deriv=0, quiet=False):
     return res
 
 def Q_clogit(theta, y, x, out='Q'):
-    v = utiliy(theta, x) 	# Deterministic component of utility
-    ll_i=logccp(v, y)
+    v = utiliy(theta, x) # v = x @ theta 	# Deterministic component of utility
+    ll_i=logccp(v, y) 
     q_i= - ll_i   
     if out=='Q':
     	return np.mean(q_i)
