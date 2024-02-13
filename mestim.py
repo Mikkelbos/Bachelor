@@ -7,8 +7,8 @@ import pandas as pd
 
 def estimation(Qfun, theta0, deriv=0, cov_type ='sandwich', parnames='', output=False): 
 
-    tic = time.perf_counter() 
-
+    tic = time.perf_counter()
+    
     # Q: Sample objective function to minimize (e.g. sample average of negative log-livelihood)
     Q = lambda theta:  Qfun(theta, out='Q')
 
