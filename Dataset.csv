@@ -1,4 +1,4 @@
-ID,year,Market share,Manufacturer,Model,Range,Price,HP,Fast charge (min),Type,Segment,Country,Antal
+ID,year,Market share,Manufacturer,Model,Range,Price,HP,Fast charge (min),Type,Segment,Country,Count
 1,2013,0.0,Aiways,U5,400,0.0,201,34,SUV,C,CH,0
 1,2014,0.0,Aiways,U5,400,0.0,201,34,SUV,C,CH,0
 1,2015,0.0,Aiways,U5,400,0.0,201,34,SUV,C,CH,0
