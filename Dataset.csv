@@ -1,4 +1,4 @@
-ID,year,Antal,Market share,Manufacturer,Model,Range,Price,HP,Fast charge (min),Type,Segment,Country
+ID,Year,Sales,Market share,Manufacturer,Model,Range,Price,HP,Chargetime,Type,Segment,Country
 1,2013,0,0.0,Aiways,U5,400,330825.7894736842,201,34,SUV,C,CH
 1,2014,0,0.0,Aiways,U5,400,330825.7894736842,201,34,SUV,C,CH
 1,2015,0,0.0,Aiways,U5,400,330825.7894736842,201,34,SUV,C,CH
