@@ -24,6 +24,8 @@ def ccp(alpha, beta, X, p_j):
     print(f'choice probability sum: {np.sum(ccp_list)} \n 3 highest probability: {np.sort(ccp_list, axis=0)[-3:]}')
     return ccp_list
 
+
+#Rows = model labels, columns = model labels for NxN matrix
 def probability_ratio(ccp, model_labels, columns): #index = alternative j, columns = alternative i
     probability_ratio_matrix = pd.DataFrame(index = model_labels, columns = columns)
     for i in range(len(ccp)):
@@ -47,7 +49,7 @@ def cross_marginal_effects(ccp, coefficients):
             for k in range(len(coefficients)-1):
                 cross_marginal_effects[i,j, k] = -coefficients[k+1]*ccp[i]*ccp[j]
     #print(f'cross_marginal_effects: \n {cross_marginal_effects}')
-
+    print(cross_marginal_effects.shape)
     return cross_marginal_effects
 
 def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
@@ -59,6 +61,7 @@ def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
         for j in range(len(coefficients)-1):
             elasticity.iloc[i,j] = ((coefficients[j+1])*X[:,j:j+1]*(1 - ccp[i]))
     #print(elasticity)
+    print(f'elasticity shape: \n{elasticity.shape}')
     return elasticity
 
 def print_cross_elasticity(cross_elasticity, model_labels):
@@ -73,14 +76,14 @@ def cross_elasticity(ccp, coefficients, X, model_labels):
         for i in range(len(ccp)):
             for j in range(len(ccp)):
                 cross_elasticity[i,j, k] = -coefficients[k+1]*X[1,k]*(ccp[j])
-    #print_cross_elasticity(cross_elasticity, model_labels)
-    return cross_elasticity
+    print_cross_elasticity(cross_elasticity, model_labels)
+    #return cross_elasticity
     
 
 def est_OLS(y, X, xnames):
     model = sm.OLS(y, X)
     results = model.fit()
-    print(results.summary(xname= xnames, yname='Market share'))
+    #print(results.summary(xname= xnames, yname='Market share'))
     return results
    
    
@@ -93,3 +96,15 @@ def logit(alpha, beta, X, p_j, model_labels, coefficients_labels, coefficients):
     cross_elasticity_matrix = cross_elasticity(ccp_list, beta, X, model_labels)
 
     #return ccp_list, probability_ratio_matrix#, marginal_effects_matrix, cross_marginal_effects_matrix, elasticity_matrix, cross_elasticity_matrix
+
+
+
+
+#Instrument generation
+def create_instrument(df1, instrument):
+    df1[instrument+'_instrument'] = 0
+    for index, row in df1.iterrows():
+        current_model = row['Model']
+        hp_sum_except_current = df1[df1['Model'] != current_model][instrument].sum()
+        df1.at[index, instrument+'_instrument'] = hp_sum_except_current
+
