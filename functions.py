@@ -4,15 +4,17 @@ from numpy import linalg as la
 import pandas as pd
 
 def exp_delta(alpha, beta, X, p_j):
-    s_j = []
-    exp_s_j = []
-    for i in range(len(p_j)):
-        s = alpha*p_j[i] + X[i:i+1,2:]@beta[2:].reshape(-1,1)
-        s_j.append(s)
+    share_j = []
+    exp_share_j = []
+    for j in range(len(p_j)):
+        print(f'Price:{p_j[7:11]}')
+        s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1)
+        share_j.append(s)
+        #print(f'share_j: {share_j[7:11]}')
         
-    for i in range (len(s_j)):
-        exp_s_j.append(np.exp(s_j[i]))
-    return exp_s_j
+    for j in range (len(share_j)):
+        exp_share_j.append(np.exp(share_j[j]))
+    return exp_share_j
 
 def ccp(alpha, beta, X, p_j):
     ccp_list = [] 
@@ -21,7 +23,8 @@ def ccp(alpha, beta, X, p_j):
     
     for i in range(len(exp_delta_list)):
         ccp_list.append(exp_delta_list[i]/sum_exp) 
-    print(f'choice probability sum: {np.sum(ccp_list)} \n 3 highest probability: {np.sort(ccp_list, axis=0)[-3:]}')
+    #print(f'choice probability sum: {np.sum(ccp_list)} \n 3 highest probability: {np.sort(ccp_list, axis=0)[-3:]}')
+    print(f'choice probability sum: {np.sum(ccp_list)} \n {ccp_list[:11]}')
     return ccp_list
 
 
@@ -107,4 +110,14 @@ def create_instrument(df1, instrument):
         current_model = row['Model']
         hp_sum_except_current = df1[df1['Model'] != current_model][instrument].sum()
         df1.at[index, instrument+'_instrument'] = hp_sum_except_current
+
+
+def straf_0ms(df):
+    for i in range(len(df)):
+        if df['Market share'][i] == 0:
+            df['Price'][i] = -df['Price'][i]*1000
+            df['HP'][i] = -df['HP'][i]
+            df['Chargetime'][i] = -df['Chargetime'][i]
+
+    return df
 
