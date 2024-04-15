@@ -32,3 +32,6 @@ def get_coefficients_OLS(data):
     coefficients = OLS_result.params
 
     return coefficients
+
+
+
