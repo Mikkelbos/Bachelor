@@ -112,12 +112,13 @@ def create_instrument(df1, instrument):
         df1.at[index, instrument+'_instrument'] = hp_sum_except_current
 
 
+#Manipuler data hvor market share er 0
 def straf_0ms(df):
     for i in range(len(df)):
         if df['Market share'][i] == 0:
             df['Price'][i] = -df['Price'][i]*1000
-            df['HP'][i] = -df['HP'][i]
-            df['Chargetime'][i] = -df['Chargetime'][i]
+            #df['HP'][i] = -df['HP'][i]
+            #df['Chargetime'][i] = -df['Chargetime'][i]
 
     return df
 
