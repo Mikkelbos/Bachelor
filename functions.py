@@ -7,30 +7,30 @@ def exp_delta(alpha, beta, X, p_j):
     share_j = []
     exp_share_j = []
     for j in range(len(p_j)):
-        print(f'Price:{p_j[7:11]}')
         s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1)
         share_j.append(s)
-        #print(f'share_j: {share_j[7:11]}')
+    print(f'share_j: {len(share_j)}')
         
     for j in range (len(share_j)):
         exp_share_j.append(np.exp(share_j[j]))
+    #print(f'exp_share_j: {exp_share_j[:10]}, sum: {np.sum(exp_share_j)}')
     return exp_share_j
 
 def ccp(alpha, beta, X, p_j):
     ccp_list = [] 
     exp_delta_list = exp_delta(alpha, beta, X, p_j)
     sum_exp = np.sum(exp_delta_list)
-    
+
     for i in range(len(exp_delta_list)):
         ccp_list.append(exp_delta_list[i]/sum_exp) 
     #print(f'choice probability sum: {np.sum(ccp_list)} \n 3 highest probability: {np.sort(ccp_list, axis=0)[-3:]}')
-    print(f'choice probability sum: {np.sum(ccp_list)} \n {ccp_list[:11]}')
+    print(f' choice probability sum: {np.sum(ccp_list)} \n ccp:{ccp_list[:11]}')
     return ccp_list
 
 
 #Rows = model labels, columns = model labels for NxN matrix
-def probability_ratio(ccp, model_labels, columns): #index = alternative j, columns = alternative i
-    probability_ratio_matrix = pd.DataFrame(index = model_labels, columns = columns)
+def probability_ratio(ccp, model_labels): #index = alternative j, columns = alternative i
+    probability_ratio_matrix = pd.DataFrame(index = model_labels, columns = model_labels)
     for i in range(len(ccp)):
         for j in range(len(ccp)):
             probability_ratio_matrix.iloc[i,j] = ccp[i]/ccp[j]
