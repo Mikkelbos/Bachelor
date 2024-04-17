@@ -116,7 +116,7 @@ def create_instrument(df1, instrument):
 def straf_0ms(df):
     for i in range(len(df)):
         if df['Market share'][i] == 0:
-            df['Price'][i] = -df['Price'][i]*1000
+            df['Price'][i] = 10_000_000
             #df['HP'][i] = -df['HP'][i]
             #df['Chargetime'][i] = -df['Chargetime'][i]
 
