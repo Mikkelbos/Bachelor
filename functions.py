@@ -104,13 +104,27 @@ def logit(alpha, beta, X, p_j, model_labels, coefficients_labels, coefficients):
 
 
 #Instrument generation
-def create_instrument(df1, instrument):
+def create_instrument_sum(df1, instrument):
     df1[instrument+'_instrument'] = 0
     for index, row in df1.iterrows():
         current_model = row['Model']
-        hp_sum_except_current = df1[df1['Model'] != current_model][instrument].sum()
-        df1.at[index, instrument+'_instrument'] = hp_sum_except_current
+        sum_except_current = df1[df1['Model'] != current_model][instrument].sum()
+        df1.at[index, instrument+'_instrument'] = sum_except_current
 
+
+def create_instrument_localdiff(df, instrument, factor):
+    df[instrument + '_instrument_localdiff'] = 0
+    std_dev = df[instrument].std()
+    std_dev = std_dev*factor
+
+    for index, row in df.iterrows():
+        current_model_instrument = row[instrument]
+        sum_except_current = df[(df['Model'] != row['Model']) & 
+                                ((df[instrument] > current_model_instrument + std_dev) |
+                                 (df[instrument] < current_model_instrument - std_dev))][instrument].sum()
+        df.at[index, instrument + '_instrument_localdiff'] = sum_except_current
+
+    return df
 
 #Manipuler data hvor market share er 0
 def straf_0ms(df):
