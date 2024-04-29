@@ -131,7 +131,7 @@ def create_instrument_sum(df1, instrument):
 
 
 def create_instrument_localsum(df, instrument, factor):
-    df[instrument + '_instrument_localdiff'] = 0
+    df[instrument + '_instrument_localsum'] = 0
     std_dev = df[instrument].std()
     std_dev = std_dev*factor
 
@@ -140,7 +140,7 @@ def create_instrument_localsum(df, instrument, factor):
         sum_except_current = df[(df['Model'] != row['Model']) & (df['Year'] == row['Year']) &
                     ((df[instrument] > current_model_instrument + std_dev) |
                      (df[instrument] < current_model_instrument - std_dev))][instrument].sum()
-        df.at[index, instrument + '_instrument_localdiff'] = sum_except_current #- current_model_instrument hvis det skal være som i 2xHao
+        df.at[index, instrument + '_instrument_localsum'] = sum_except_current 
 
     return df
 
