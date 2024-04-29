@@ -104,22 +104,19 @@ def BLP(dataframe, instrument):
     # Sum the attribute of other models
     def sum_attribute(row):
         # Filter the DataFrame excluding the current model
-        data = dataframe[dataframe['Model'] != row['Model']]
+        data = dataframe[(dataframe['Year'] == row['Year']) & (dataframe['Model'] != row['Model'])]
                 
         #Sum
         sum = data[instrument].sum()
 
-        #Quadratic sum
-        quadratic = (data[instrument]**2).sum()
 
-        return pd.Series({'sum': sum, 'quadratic': quadratic})
+        return pd.Series({'sum': sum})
 
     # Apply the function to each row in the DataFrame
     new_columns = dataframe.apply(sum_attribute, axis=1)
 
     # Add the new columns to the DataFrame
     dataframe[instrument+'_sum'] = new_columns['sum']
-    dataframe[instrument+'_quadratic'] = new_columns['quadratic']
 
     return dataframe
 
