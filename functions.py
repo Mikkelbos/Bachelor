@@ -101,19 +101,16 @@ def logit(alpha, beta, X, p_j, model_labels, coefficients_labels, coefficients):
     #return ccp_list, probability_ratio_matrix#, marginal_effects_matrix, cross_marginal_effects_matrix, elasticity_matrix, cross_elasticity_matrix
 
 def BLP(dataframe, instrument):
-    # Group the DataFrame by the year
-    grouped_data = dataframe.groupby('Year')
-
-    # Define a function to sum the attribute of other models in the same year
+    # Sum the attribute of other models
     def sum_attribute(row):
-        # Filter the DataFrame for the same year excluding the current model
-        same_year_data = dataframe[(dataframe['Year'] == row['Year']) & (dataframe['Model'] != row['Model'])]
+        # Filter the DataFrame excluding the current model
+        data = dataframe[dataframe['Model'] != row['Model']]
                 
         #Sum
-        sum = same_year_data[instrument].sum()
+        sum = data[instrument].sum()
 
         #Quadratic sum
-        quadratic = (same_year_data[instrument]**2).sum()
+        quadratic = (data[instrument]**2).sum()
 
         return pd.Series({'sum': sum, 'quadratic': quadratic})
 
