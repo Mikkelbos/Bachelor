@@ -133,7 +133,7 @@ def create_instrument_sum(df1, instrument):
         df1.at[index, instrument+'_instrument'] = sum_except_current
 
 
-def create_instrument_localdiff(df, instrument, factor):
+def create_instrument_localsum(df, instrument, factor):
     df[instrument + '_instrument_localdiff'] = 0
     std_dev = df[instrument].std()
     std_dev = std_dev*factor
