@@ -140,9 +140,9 @@ def create_instrument_localdiff(df, instrument, factor):
 
     for index, row in df.iterrows():
         current_model_instrument = row[instrument]
-        sum_except_current = df[(df['Model'] != row['Model']) & 
-                                ((df[instrument] > current_model_instrument + std_dev) |
-                                 (df[instrument] < current_model_instrument - std_dev))][instrument].sum()
+        sum_except_current = df[(df['Model'] != row['Model']) & (df['Year'] == row['Year']) &
+                    ((df[instrument] > current_model_instrument + std_dev) |
+                     (df[instrument] < current_model_instrument - std_dev))][instrument].sum()
         df.at[index, instrument + '_instrument_localdiff'] = sum_except_current #- current_model_instrument hvis det skal være som i 2xHao
 
     return df
