@@ -68,7 +68,7 @@ def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     return elasticity
 
 def print_cross_elasticity(cross_elasticity, model_labels):
-    print(cross_elasticity.shape[1])
+    print(cross_elasticity.shape)
     for k in range(cross_elasticity.shape[1]):
         print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
 
