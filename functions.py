@@ -7,13 +7,13 @@ def exp_delta(alpha, beta, X, p_j):
     share_j = []
     exp_share_j = []
     for j in range(len(p_j)):
-        s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1)
+        s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1) #Slicer hhv konstant og pris væk
         share_j.append(s)
     print(f'share_j: {len(share_j)}')
         
     for j in range (len(share_j)):
         exp_share_j.append(np.exp(share_j[j]))
-    #print(f'exp_share_j: {exp_share_j[:10]}, sum: {np.sum(exp_share_j)}')
+    #print(f'exp_share_j: {exp_share_j[:10]}, sum: {np.sum(exp_share_j)}') #Sanity check
     return exp_share_j
 
 def ccp(alpha, beta, X, p_j):
@@ -37,11 +37,15 @@ def probability_ratio(ccp, model_labels): #index = alternative j, columns = alte
     return probability_ratio_matrix
 
 def marginal_effects(ccp, model_labels, coefficients_labels, coefficients):
+    
     marginal_effects = pd.DataFrame(index = model_labels, columns = coefficients_labels)
+    
     for i in range(len(ccp)):
         for j in range(len(coefficients)-1):
-            marginal_effects.iloc[i,j] = coefficients[j+1]*ccp[i]*(1-ccp[j])
+            marginal_effects.iloc[i,j] = coefficients[j+1]*ccp[i]*(1-ccp[i]) #dv/dz*P_i*(1-P_i)
+    
     #print(f'marginal_effects: \n{marginal_effects}')
+    
     return marginal_effects
 
 def cross_marginal_effects(ccp, coefficients):
@@ -49,7 +53,7 @@ def cross_marginal_effects(ccp, coefficients):
     for i in range(len(ccp)):
         for j in range(len(ccp)):
             for k in range(len(coefficients)-1):
-                cross_marginal_effects[i,j, k] = -coefficients[k+1]*ccp[i]*ccp[j]
+                cross_marginal_effects[i,j, k] = -coefficients[k+1]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j
     #print(f'cross_marginal_effects: \n {cross_marginal_effects}')
     print(cross_marginal_effects.shape)
     return cross_marginal_effects
@@ -74,11 +78,15 @@ def print_cross_elasticity(cross_elasticity, model_labels):
 def cross_elasticity(ccp, coefficients, X, model_labels):
     cross_elasticity = np.zeros((len(ccp), len(ccp), len(coefficients)-1))
     X = X[:,1:] #remove the constant
+    print(coefficients)
+    print(X[:1])
+    #for k in range(len(coefficients)-1):
     for k in range(len(coefficients)-1):
         for i in range(len(ccp)):
             for j in range(len(ccp)):
                 cross_elasticity[i,j, k] = -coefficients[k+1]*X[1,k]*(ccp[j])
-    print_cross_elasticity(cross_elasticity, model_labels)
+                #cross_elasticity[i,j, k] = -coefficients[k+1]*X[:,k]*(ccp[j])
+    #print_cross_elasticity(cross_elasticity, model_labels)
     #return cross_elasticity
     
 
