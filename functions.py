@@ -67,6 +67,7 @@ def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     return elasticity
 
 def print_cross_elasticity(cross_elasticity, model_labels):
+    print(cross_elasticity.shape)
     for k in range(cross_elasticity.shape[1]):
         print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
 
@@ -156,8 +157,9 @@ def straf_0ms(df):
 
 #Cost
 
-def cost(price, share, alpha):
-    cost = np.zeros(len(price))
-    for i in range(len(price)):
-        cost[i] = price[i] - (alpha/share[i])
+def cost(p_j, s, alpha):
+    cost = np.zeros(len(p_j))
+    for i in range(len(p_j)):
+        cost[i] = p_j[i] - (alpha/s[i])
+        #Hvis cost stadig er højere end pris, så ændre "-" til "+" og køre igen
     return cost
