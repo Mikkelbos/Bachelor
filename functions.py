@@ -57,17 +57,22 @@ def ccp(alpha, beta, dataset, X):
     return ccp_array
 
 
+def probability_ratio(dataset, year):
+    
+    year_data = dataset[dataset['Year'] == year]
 
-#Rows = model labels, columns = model labels for NxN matrix
-def probability_ratio(dataset): #index = alternative j, columns = alternative i
-    ccp = dataset['CCP']
-    model_labels = dataset['Model_year']
-    probability_ratio_matrix = pd.DataFrame(index = model_labels, columns = model_labels)
-    for i in range(len(ccp)):
-        for j in range(len(ccp)):
-            probability_ratio_matrix.iloc[i,j] = ccp[i]/ccp[j]
-    #print(f'probability_ratio_matrix: \n{probability_ratio_matrix}')
+    # DataFrame for the specific year
+    ccp_values = year_data['CCP']
+    model_labels = year_data['Model']
+    probability_ratio_matrix = pd.DataFrame(index=model_labels, columns=model_labels)
+
+    # Calculate the probability ratio
+    for i in range(len(ccp_values)):
+        for j in range(len(ccp_values)):
+            probability_ratio_matrix.iloc[i, j] = ccp_values.iloc[i] / ccp_values.iloc[j]
+
     return probability_ratio_matrix
+
 
 def marginal_effects(dataset, estimation): #,coefficients_labels, coefficients):
     ccp = dataset['CCP']
@@ -80,8 +85,6 @@ def marginal_effects(dataset, estimation): #,coefficients_labels, coefficients):
     for i in range(len(ccp)):
         for j in range(len(coefficients)):
             marginal_effects.iloc[i,j] = coefficients[j]*ccp[i]*(1-ccp[i]) #dv/dz*P_i*(1-P_i)
-    
-    #print(f'marginal_effects: \n{marginal_effects}')
     
     return marginal_effects
 
