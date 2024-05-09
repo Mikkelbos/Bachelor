@@ -170,13 +170,13 @@ def BLP(dataframe, instrument):
     new_columns = dataframe.apply(sum_attribute, axis=1)
 
     # Add the new columns to the DataFrame
-    dataframe[instrument+'_sum'] = new_columns['sum']
+    dataframe[instrument+'_BLP'] = new_columns['sum']
 
     return dataframe
 
 
-def create_instrument_localsum(df, instrument, factor):
-    df[instrument + '_instrument_localsum'] = 0
+def GH(df, instrument, factor): #create instrument local sum
+    df[instrument + '_GH'] = 0
     std_dev = df[instrument].std()
     std_dev = std_dev*factor
 
@@ -185,7 +185,7 @@ def create_instrument_localsum(df, instrument, factor):
         sum_except_current = df[(df['Model'] != row['Model']) & (df['Year'] == row['Year']) &
                     ((df[instrument] > current_model_instrument + std_dev) |
                      (df[instrument] < current_model_instrument - std_dev))][instrument].sum()
-        df.at[index, instrument + '_instrument_localsum'] = sum_except_current 
+        df.at[index, instrument + '_GH'] = sum_except_current 
 
     return df
 
