@@ -3,32 +3,6 @@ import numpy as np
 from numpy import linalg as la
 import pandas as pd
 
-
-'''
-def exp_delta(alpha, beta, X, p_j):
-    share_j = []
-    exp_share_j = []
-    for j in range(len(p_j)):
-        s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1) #Slicer hhv konstant og pris væk
-        share_j.append(s)
-    print(f'share_j: {len(share_j)}')
-        
-    for j in range (len(share_j)):
-        exp_share_j.append(np.exp(share_j[j]))
-    #print(f'exp_share_j: {exp_share_j[:10]}, sum: {np.sum(exp_share_j)}') #Sanity check
-    return exp_share_j
-
-def ccp(alpha, beta, X, p_j):
-    ccp_list = [] 
-    exp_delta_list = exp_delta(alpha, beta, X, p_j)
-    sum_exp = np.sum(exp_delta_list)
-
-    for i in range(len(exp_delta_list)):
-        ccp_list.append(exp_delta_list[i]/sum_exp) 
-    print(f' choice probability sum: {np.sum(ccp_list)} \n ccp:{ccp_list[:11]}')
-    return ccp_list
-'''
-
 def ccp(alpha, beta, dataset, X):
     ccp_list = []  # Initialize a list to store CCP arrays for each year
 
@@ -74,7 +48,7 @@ def probability_ratio(dataset, year):
     return probability_ratio_matrix
 
 
-def marginal_effects(dataset, estimation): #,coefficients_labels, coefficients):
+def marginal_effects(dataset, estimation):
     ccp = dataset['CCP']
     model_labels = dataset['Model_year']
     
@@ -92,8 +66,9 @@ def cross_marginal_effects(dataset, estimation):
     
     ccp = dataset['CCP']
     model_labels = dataset['Model_year']
+    model = dataset['Model']
     
-    coefficients_labels = estimation.params.index
+    coefficients_labels = estimation.params.index 
     coefficients = estimation.params
     
     marginal_effects_dict = {}
@@ -108,79 +83,30 @@ def cross_marginal_effects(dataset, estimation):
         
         marginal_effects_dict[coef_label] = marginal_effects_flat
     
-    marginal_effects_df = pd.DataFrame(marginal_effects_dict, index=pd.MultiIndex.from_product([model_labels, model_labels]))
+    marginal_effects_df = pd.DataFrame(marginal_effects_dict, index=pd.MultiIndex.from_product([model, model_labels]))
     
     return marginal_effects_df
 
 
-
-def cross_marginal_effects_ny(dataset, estimation):
-    # Group the data by year
-    grouped_data = dataset.groupby('Year')
-    
-    coefficients_labels = estimation.params.index
-    coefficients = estimation.params
-    
-    # Initialize an empty DataFrame to store marginal effects
-    marginal_effects_df = pd.DataFrame()
-
-    for year, data_year in grouped_data:
-        ccp = data_year['CCP']
-        model_labels = data_year['Model']
-
-        # Initialize a DataFrame for the current year
-        marginal_effects = pd.DataFrame(index=model_labels, columns=coefficients_labels)
-
-        for k, coef_label in enumerate(coefficients_labels):
-            for i in range(len(ccp)):
-                for j in range(len(ccp)):
-                    marginal_effects.loc[model_labels[i], coef_label] = -coefficients[k] * ccp[i] * ccp[j]
-
-        # Append the marginal effects for the current year to the overall DataFrame
-        marginal_effects_df = pd.concat([marginal_effects_df, marginal_effects])
-
-    return marginal_effects_df
-
-
-'''def cross_marginal_effects(dataset, estimation):
-    
+def elasticity(dataset, estimation):
     ccp = dataset['CCP']
     model_labels = dataset['Model_year']
+    X = dataset[estimation.params.index]
     
     coefficients_labels = estimation.params.index
     coefficients = estimation.params
-    marginal_effects = pd.DataFrame(index = model_labels, columns = coefficients_labels)
-    
-    
-    cross_marginal_effects = np.zeros((len(ccp), len(ccp), len(coefficients)))
-    for i in range(len(ccp)):
-        for j in range(len(ccp)):
-            for k in range(len(coefficients)):
-                cross_marginal_effects[i,j, k] = -coefficients[k]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j 
-                
-    #print(f'cross_marginal_effects: \n {cross_marginal_effects}')
-    print(cross_marginal_effects.shape)
-    return cross_marginal_effects'''''''''
-
-
-def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     elasticity = pd.DataFrame(index = model_labels, columns = coefficients_labels)
-    #print(elasticity)
-    #X = np.array(X)
-    #X = X.reshape(1, -1)
-  
-    for i in range(len(model_labels)):
+    
+    for i in range(len(ccp)):
         for j in range(len(coefficients)):
-            elasticity.iloc[i,j] = ((coefficients[j])*X[:,j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
-            #elasticity.iloc[i,j] = ((coefficients[j])*X[j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
-    print(f'elasticity shape: \n{elasticity.shape}')
-    print(elasticity)
+            elasticity.iloc[i,j] = ((coefficients[j])*X.iloc[i,j]*(1 - ccp[i]))
+    
     return elasticity
 
-def print_cross_elasticity(cross_elasticity, model_labels):
-    print(cross_elasticity.shape)
-    for k in range(cross_elasticity.shape[1]):
-        print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
+#def print_cross_elasticity(cross_elasticity, model_labels):
+    #print(cross_elasticity.shape)
+    #for k in range(cross_elasticity.shape[1]):
+    #    print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
 
 #def cross_elasticity(dataset, coefficients, X, model_labels):
 '''def cross_elasticity(dataset, estimation):
@@ -216,15 +142,6 @@ def cross_elasticity(dataset, estimation):
                 
     #print_cross_elasticity(cross_elasticity_table, model_labels)
     return cross_elasticity_table
-
-
-
-
-def est_OLS(y, X, xnames):
-    model = sm.OLS(y, X)
-    results = model.fit()
-    #print(results.summary(xname= xnames, yname='Market share'))
-    return results
    
    
 def logit(alpha, beta, X, p_j, model_labels, coefficients_labels, coefficients):
@@ -258,15 +175,6 @@ def BLP(dataframe, instrument):
     return dataframe
 
 
-#Instrument generation
-def create_instrument_sum(df1, instrument):
-    df1[instrument+'_instrument'] = 0
-    for index, row in df1.iterrows():
-        current_model = row['Model']
-        sum_except_current = df1[df1['Model'] != current_model][instrument].sum()
-        df1.at[index, instrument+'_instrument'] = sum_except_current
-
-
 def create_instrument_localsum(df, instrument, factor):
     df[instrument + '_instrument_localsum'] = 0
     std_dev = df[instrument].std()
@@ -281,6 +189,7 @@ def create_instrument_localsum(df, instrument, factor):
 
     return df
 
+'''
 #Manipuler data hvor market share er 0
 def straf_0ms(df):
     for i in range(len(df)):
@@ -290,7 +199,7 @@ def straf_0ms(df):
             #df['Chargetime'][i] = -df['Chargetime'][i]
 
     return df
-
+'''
 
 
 #Cost
