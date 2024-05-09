@@ -3,6 +3,7 @@ import numpy as np
 from numpy import linalg as la
 import pandas as pd
 
+
 '''
 def exp_delta(alpha, beta, X, p_j):
     share_j = []
@@ -57,7 +58,9 @@ def ccp(alpha, beta, dataset, X):
 
 
 #Rows = model labels, columns = model labels for NxN matrix
-def probability_ratio(ccp, model_labels): #index = alternative j, columns = alternative i
+def probability_ratio(dataset): #index = alternative j, columns = alternative i
+    ccp = dataset['CCP']
+    model_labels = dataset['Model_year']
     probability_ratio_matrix = pd.DataFrame(index = model_labels, columns = model_labels)
     for i in range(len(ccp)):
         for j in range(len(ccp)):
@@ -65,8 +68,12 @@ def probability_ratio(ccp, model_labels): #index = alternative j, columns = alte
     #print(f'probability_ratio_matrix: \n{probability_ratio_matrix}')
     return probability_ratio_matrix
 
-def marginal_effects(ccp, model_labels, coefficients_labels, coefficients):
+def marginal_effects(dataset, estimation): #,coefficients_labels, coefficients):
+    ccp = dataset['CCP']
+    model_labels = dataset['Model_year']
     
+    coefficients_labels = estimation.params.index
+    coefficients = estimation.params
     marginal_effects = pd.DataFrame(index = model_labels, columns = coefficients_labels)
     
     for i in range(len(ccp)):
@@ -77,12 +84,16 @@ def marginal_effects(ccp, model_labels, coefficients_labels, coefficients):
     
     return marginal_effects
 
-def cross_marginal_effects(ccp, coefficients):
+def cross_marginal_effects(dataset, estimation):
+    
+    ccp = dataset['CCP']
+    coefficients = estimation.params
+    
     cross_marginal_effects = np.zeros((len(ccp), len(ccp), len(coefficients)-1))
     for i in range(len(ccp)):
         for j in range(len(ccp)):
-            for k in range(len(coefficients)-1):
-                cross_marginal_effects[i,j, k] = -coefficients[k+1]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j
+            for k in range(len(coefficients)):
+                cross_marginal_effects[i,j, k] = -coefficients[k]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j
     #print(f'cross_marginal_effects: \n {cross_marginal_effects}')
     print(cross_marginal_effects.shape)
     return cross_marginal_effects
@@ -90,15 +101,15 @@ def cross_marginal_effects(ccp, coefficients):
 def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     elasticity = pd.DataFrame(index = model_labels, columns = coefficients_labels)
     #print(elasticity)
-    X = np.array(X)
-    X = X.reshape(1, -1)
+    #X = np.array(X)
+    #X = X.reshape(1, -1)
   
     for i in range(len(model_labels)):
         for j in range(len(coefficients)):
-            #elasticity.iloc[i,j] = ((coefficients[j])*X[:,j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
-            elasticity.iloc[i,j] = ((coefficients[j])*X[:,j]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
+            elasticity.iloc[i,j] = ((coefficients[j])*X[:,j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
+            #elasticity.iloc[i,j] = ((coefficients[j])*X[j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
     print(f'elasticity shape: \n{elasticity.shape}')
-    #print(elasticity)
+    print(elasticity)
     return elasticity
 
 def print_cross_elasticity(cross_elasticity, model_labels):
@@ -106,20 +117,43 @@ def print_cross_elasticity(cross_elasticity, model_labels):
     for k in range(cross_elasticity.shape[1]):
         print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
 
-def cross_elasticity(ccp, coefficients, X, model_labels):
-    cross_elasticity = np.zeros((len(ccp), len(ccp), len(coefficients)-1))
-    X = X[:,1:] #remove the constant
-    print(coefficients)
-    print(X[:1])
+#def cross_elasticity(dataset, coefficients, X, model_labels):
+'''def cross_elasticity(dataset, estimation):
     
-    for k in range(len(coefficients)-1):
+    ccp = dataset['CCP']
+    coefficients = estimation.params
+    X = dataset[estimation.index]
+    model_labels = dataset['Model_year']
+    
+    #cross_elasticity = np.zeros((len(ccp), len(ccp), len(coefficients))) #række, colonne, højde
+        
+    for k in range(len(coefficients)):
         for i in range(len(ccp)):
             for j in range(len(ccp)):
-                cross_elasticity[i,j, k] = -coefficients[k+1]*X[i,k]*(ccp[j]) 
+                cross_elasticity_table[i,j, k] = -coefficients[k]*X[i,k]*(ccp[j]) 
                 
     print_cross_elasticity(cross_elasticity, model_labels)
-    #return cross_elasticity
+    #return cross_elasticity'''
     
+def cross_elasticity(dataset, estimation):
+    
+    ccp = dataset['CCP']
+    coefficients = estimation.params
+    X = dataset[estimation.params.index]
+    model_labels = dataset['Model_year']
+    
+    cross_elasticity_table = pd.MultiIndex.from_product([model_labels, model_labels, X])
+        
+    for k in range(len(coefficients)):
+        for i in range(len(ccp)):
+            for j in range(len(ccp)):
+                cross_elasticity_table[i, j, k] = -coefficients[k] * X.iloc[i, k] * ccp.iloc[j]
+                
+    #print_cross_elasticity(cross_elasticity_table, model_labels)
+    return cross_elasticity_table
+
+
+
 
 def est_OLS(y, X, xnames):
     model = sm.OLS(y, X)
