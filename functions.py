@@ -80,13 +80,13 @@ def cross_elasticity(ccp, coefficients, X, model_labels):
     X = X[:,1:] #remove the constant
     print(coefficients)
     print(X[:1])
-    #for k in range(len(coefficients)-1):
+    
     for k in range(len(coefficients)-1):
         for i in range(len(ccp)):
             for j in range(len(ccp)):
-                cross_elasticity[i,j, k] = -coefficients[k+1]*X[1,k]*(ccp[j])
-                #cross_elasticity[i,j, k] = -coefficients[k+1]*X[:,k]*(ccp[j])
-    #print_cross_elasticity(cross_elasticity, model_labels)
+                cross_elasticity[i,j, k] = -coefficients[k+1]*X[i,k]*(ccp[j]) 
+                
+    print_cross_elasticity(cross_elasticity, model_labels)
     #return cross_elasticity
     
 
@@ -165,9 +165,9 @@ def straf_0ms(df):
 
 #Cost
 
-def cost(p_j, s, alpha):
+def cost(p_j, ccp, alpha):
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
-        cost[i] = p_j[i] - (alpha/s[i])
-        #Hvis cost stadig er højere end pris, så ændre "-" til "+" og køre igen
+        #cost[i] = p_j[i] + (s[i]/alpha) 
+        cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
     return cost
