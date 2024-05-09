@@ -3,6 +3,7 @@ import numpy as np
 from numpy import linalg as la
 import pandas as pd
 
+'''
 def exp_delta(alpha, beta, X, p_j):
     share_j = []
     exp_share_j = []
@@ -25,6 +26,34 @@ def ccp(alpha, beta, X, p_j):
         ccp_list.append(exp_delta_list[i]/sum_exp) 
     print(f' choice probability sum: {np.sum(ccp_list)} \n ccp:{ccp_list[:11]}')
     return ccp_list
+'''
+
+def ccp(alpha, beta, dataset, X):
+    ccp_list = []  # Initialize a list to store CCP arrays for each year
+
+    # Group the dataset by year
+    grouped_data = dataset.groupby('Year')
+
+    for year, data_year in grouped_data:
+        X_year = data_year[X.columns]
+        p_j_year = data_year['Price'].values
+        
+        # Utility
+        utility_year = alpha * p_j_year + np.dot(X_year, beta)
+
+        # CCP
+        ccp_year = np.exp(utility_year) / np.sum(np.exp(utility_year))
+
+        # Reshape the CCPs to a column vector
+        ccp_reshaped = ccp_year.reshape(-1, 1)
+
+        # Append
+        ccp_list.append(ccp_reshaped)
+
+    # Stack the CCP arrays vertically
+    ccp_array = np.vstack(ccp_list)
+
+    return ccp_array
 
 
 #Rows = model labels, columns = model labels for NxN matrix
