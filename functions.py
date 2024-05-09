@@ -70,8 +70,8 @@ def marginal_effects(ccp, model_labels, coefficients_labels, coefficients):
     marginal_effects = pd.DataFrame(index = model_labels, columns = coefficients_labels)
     
     for i in range(len(ccp)):
-        for j in range(len(coefficients)-1):
-            marginal_effects.iloc[i,j] = coefficients[j+1]*ccp[i]*(1-ccp[i]) #dv/dz*P_i*(1-P_i)
+        for j in range(len(coefficients)):
+            marginal_effects.iloc[i,j] = coefficients[j]*ccp[i]*(1-ccp[i]) #dv/dz*P_i*(1-P_i)
     
     #print(f'marginal_effects: \n{marginal_effects}')
     
@@ -90,13 +90,15 @@ def cross_marginal_effects(ccp, coefficients):
 def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     elasticity = pd.DataFrame(index = model_labels, columns = coefficients_labels)
     #print(elasticity)
-    X = X[:,1:].reshape(1, -1)
+    X = np.array(X)
+    X = X.reshape(1, -1)
   
     for i in range(len(model_labels)):
-        for j in range(len(coefficients)-1):
-            elasticity.iloc[i,j] = ((coefficients[j+1])*X[:,j:j+1]*(1 - ccp[i]))
-    #print(elasticity)
+        for j in range(len(coefficients)):
+            #elasticity.iloc[i,j] = ((coefficients[j])*X[:,j:j+1]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
+            elasticity.iloc[i,j] = ((coefficients[j])*X[:,j]*(1 - ccp[i])) # < 0 * 1 * 0<ccp<1 = 
     print(f'elasticity shape: \n{elasticity.shape}')
+    #print(elasticity)
     return elasticity
 
 def print_cross_elasticity(cross_elasticity, model_labels):
