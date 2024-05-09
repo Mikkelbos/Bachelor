@@ -91,16 +91,77 @@ def marginal_effects(dataset, estimation): #,coefficients_labels, coefficients):
 def cross_marginal_effects(dataset, estimation):
     
     ccp = dataset['CCP']
+    model_labels = dataset['Model_year']
+    
+    coefficients_labels = estimation.params.index
     coefficients = estimation.params
     
-    cross_marginal_effects = np.zeros((len(ccp), len(ccp), len(coefficients)-1))
+    marginal_effects_dict = {}
+    
+    for k, coef_label in enumerate(coefficients_labels):
+        marginal_effects = np.zeros((len(ccp), len(ccp)))
+        for i in range(len(ccp)):
+            for j in range(len(ccp)):
+                marginal_effects[i, j] = -coefficients[k] * ccp[i] * ccp[j]
+                
+        marginal_effects_flat = marginal_effects.flatten()
+        
+        marginal_effects_dict[coef_label] = marginal_effects_flat
+    
+    marginal_effects_df = pd.DataFrame(marginal_effects_dict, index=pd.MultiIndex.from_product([model_labels, model_labels]))
+    
+    return marginal_effects_df
+
+
+
+def cross_marginal_effects_ny(dataset, estimation):
+    # Group the data by year
+    grouped_data = dataset.groupby('Year')
+    
+    coefficients_labels = estimation.params.index
+    coefficients = estimation.params
+    
+    # Initialize an empty DataFrame to store marginal effects
+    marginal_effects_df = pd.DataFrame()
+
+    for year, data_year in grouped_data:
+        ccp = data_year['CCP']
+        model_labels = data_year['Model']
+
+        # Initialize a DataFrame for the current year
+        marginal_effects = pd.DataFrame(index=model_labels, columns=coefficients_labels)
+
+        for k, coef_label in enumerate(coefficients_labels):
+            for i in range(len(ccp)):
+                for j in range(len(ccp)):
+                    marginal_effects.loc[model_labels[i], coef_label] = -coefficients[k] * ccp[i] * ccp[j]
+
+        # Append the marginal effects for the current year to the overall DataFrame
+        marginal_effects_df = pd.concat([marginal_effects_df, marginal_effects])
+
+    return marginal_effects_df
+
+
+'''def cross_marginal_effects(dataset, estimation):
+    
+    ccp = dataset['CCP']
+    model_labels = dataset['Model_year']
+    
+    coefficients_labels = estimation.params.index
+    coefficients = estimation.params
+    marginal_effects = pd.DataFrame(index = model_labels, columns = coefficients_labels)
+    
+    
+    cross_marginal_effects = np.zeros((len(ccp), len(ccp), len(coefficients)))
     for i in range(len(ccp)):
         for j in range(len(ccp)):
             for k in range(len(coefficients)):
-                cross_marginal_effects[i,j, k] = -coefficients[k]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j
+                cross_marginal_effects[i,j, k] = -coefficients[k]*ccp[i]*ccp[j] #-dv/dz*P_i*P_j 
+                
     #print(f'cross_marginal_effects: \n {cross_marginal_effects}')
     print(cross_marginal_effects.shape)
-    return cross_marginal_effects
+    return cross_marginal_effects'''''''''
+
 
 def elasticity(ccp, model_labels, coefficients_labels, coefficients, X):
     elasticity = pd.DataFrame(index = model_labels, columns = coefficients_labels)
