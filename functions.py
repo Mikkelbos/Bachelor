@@ -57,6 +57,7 @@ def ccp(alpha, beta, dataset, X):
     return ccp_array
 
 
+
 #Rows = model labels, columns = model labels for NxN matrix
 def probability_ratio(dataset): #index = alternative j, columns = alternative i
     ccp = dataset['CCP']
