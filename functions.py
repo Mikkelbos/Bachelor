@@ -142,17 +142,30 @@ def cross_elasticity(dataset, estimation):
                 
     #print_cross_elasticity(cross_elasticity_table, model_labels)
     return cross_elasticity_table
-   
-   
-def logit(alpha, beta, X, p_j, model_labels, coefficients_labels, coefficients):
-    ccp_list = ccp(alpha, beta, X, p_j)
-    probability_ratio_matrix = probability_ratio(ccp_list, model_labels, model_labels)
-    marginal_effects_matrix = marginal_effects(ccp_list, model_labels, coefficients_labels, coefficients)
-    cross_marginal_effects_matrix = cross_marginal_effects(ccp_list, coefficients)
-    elasticity_matrix = elasticity(ccp_list, model_labels, coefficients_labels, coefficients, X)
-    cross_elasticity_matrix = cross_elasticity(ccp_list, beta, X, model_labels)
 
-    #return ccp_list, probability_ratio_matrix#, marginal_effects_matrix, cross_marginal_effects_matrix, elasticity_matrix, cross_elasticity_matrix
+def cross_elasticity_1(dataset, estimation):
+    
+    ccp = dataset['CCP']
+    coefficients = estimation.params
+    X = dataset[estimation.params.index]
+    model_labels = dataset['Model_year']
+    
+    cross_elasticity_table = pd.DataFrame(index=pd.MultiIndex.from_product([model_labels, model_labels, X.columns]),
+                                           columns=['Cross_Elasticity'])
+        
+    for k in range(len(coefficients)):
+        print(f'Current coefficient: {estimation.params.index[k]}')
+        for i in range(len(ccp)):
+            for j in range(len(ccp)):
+                cross_elasticity_table.loc[(model_labels[i], model_labels[j], X.columns[k]), 'Cross_Elasticity'] = -coefficients[k] * X.iloc[j, k] * ccp.iloc[j] 
+                
+    return cross_elasticity_table
+
+# Example usage:
+# cross_elasticity_table = cross_elasticity(logit_data, OLS)
+# print(cross_elasticity_table)
+
+   
 
 def BLP(dataframe, instrument):
     # Sum the attribute of other models
