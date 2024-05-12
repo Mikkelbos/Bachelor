@@ -3,6 +3,31 @@ import numpy as np
 from numpy import linalg as la
 import pandas as pd
 
+'''
+def exp_delta(alpha, beta, X, p_j):
+    share_j = []
+    exp_share_j = []
+    for j in range(len(p_j)):
+        s = alpha*p_j[j] + X[j:j+1,2:]@beta[2:].reshape(-1,1) #Slicer hhv konstant og pris væk
+        share_j.append(s)
+    print(f'share_j: {len(share_j)}')
+        
+    for j in range (len(share_j)):
+        exp_share_j.append(np.exp(share_j[j]))
+    #print(f'exp_share_j: {exp_share_j[:10]}, sum: {np.sum(exp_share_j)}') #Sanity check
+    return exp_share_j
+
+def ccp(alpha, beta, X, p_j):
+    ccp_list = [] 
+    exp_delta_list = exp_delta(alpha, beta, X, p_j)
+    sum_exp = np.sum(exp_delta_list)
+
+    for i in range(len(exp_delta_list)):
+        ccp_list.append(exp_delta_list[i]/sum_exp) 
+    print(f' choice probability sum: {np.sum(ccp_list)} \n ccp:{ccp_list[:11]}')
+    return ccp_list
+'''
+
 def ccp(alpha, beta, dataset, X):
     ccp_list = []  # Initialize a list to store CCP arrays for each year
 
