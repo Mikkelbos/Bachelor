@@ -58,7 +58,7 @@ def ccp(alpha, beta, dataset, X):
 
 def probability_ratio(dataset, year):
     
-    year_data = dataset[dataset['Year'] == year]
+    year_data = dataset[dataset['Year'] == year].reset_index(drop=True)
 
     # DataFrame for the specific year
     ccp_values = year_data['CCP']
@@ -88,10 +88,12 @@ def marginal_effects(dataset, estimation):
     return marginal_effects
 
 def cross_marginal_effects(dataset, estimation):
-    
+   
+    dataset = dataset.reset_index(drop=True)
     ccp = dataset['CCP']
     model_labels = dataset['Model_year']
     model = dataset['Model']
+    year = dataset['Year'] 
     
     coefficients_labels = estimation.params.index 
     coefficients = estimation.params
@@ -102,15 +104,23 @@ def cross_marginal_effects(dataset, estimation):
         marginal_effects = np.zeros((len(ccp), len(ccp)))
         for i in range(len(ccp)):
             for j in range(len(ccp)):
-                marginal_effects[i, j] = -coefficients[k] * ccp[i] * ccp[j]
-                
+                # Check if the observations are in the same year
+                if year[i] == year[j]:
+                    marginal_effects[i, j] = -coefficients[k] * ccp[i] * ccp[j]
+                else:
+                    marginal_effects[i, j] = np.nan  # Set to NaN if not in the same year
+                    
         marginal_effects_flat = marginal_effects.flatten()
         
         marginal_effects_dict[coef_label] = marginal_effects_flat
     
     marginal_effects_df = pd.DataFrame(marginal_effects_dict, index=pd.MultiIndex.from_product([model, model_labels]))
     
+    # Drop NaN values from the DataFrame
+    marginal_effects_df = marginal_effects_df.dropna()
+    
     return marginal_effects_df
+
 
 
 def elasticity(dataset, estimation):
