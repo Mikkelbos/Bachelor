@@ -189,7 +189,7 @@ def cross_elasticity_1(dataset, estimation):
                                            columns=['Cross_Elasticity'])
         
     for k in range(len(coefficients)):
-        print(f'Current coefficient: {estimation.params.index[k]}')
+        #print(f'Current coefficient: {estimation.params.index[k]}')
         for i in range(len(ccp)):
             for j in range(len(ccp)):
                 cross_elasticity_table.loc[(model_labels[i], model_labels[j], X.columns[k]), 'Cross_Elasticity'] = -coefficients[k] * X.iloc[j, k] * ccp.iloc[j] 
