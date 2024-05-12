@@ -250,21 +250,26 @@ def straf_0ms(df):
 '''
 
 
+#Cost
 
-def cost_original(dataset, alpha):
+def cost_original(dataset, estimation):
     s = dataset['CCP']
     p_j = dataset['Price']
+    alpha = estimation.params[1]
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
         cost[i] = p_j[i] + (alpha/s[i])
         #Hvis cost stadig er højere end pris, så ændre "-" til "+" og køre igen
     return cost
 
-#Cost
+def cost(dataset, estimation):
+    p_j = dataset['Price']
+    ccp = dataset['CCP']
+    alpha = estimation.params[1]
 
-def cost(p_j, ccp, alpha):
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
         #cost[i] = p_j[i] + (s[i]/alpha) 
-        cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
+        #cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
+        cost[i] = p_j[i]+(ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
     return cost
