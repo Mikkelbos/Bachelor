@@ -55,6 +55,37 @@ def ccp(alpha, beta, dataset, X):
 
     return ccp_array
 
+def nested_ccp(alpha, beta, dataset, X):
+    phi_list = []  # Initialize a list to store phi values for each year
+    I_list = []  # Initialize a list to store I values for each year
+    pr_jn_list = []  # Initialize a list to store choice probabilities for each segment
+
+    # Group the dataset by year
+    grouped_data = dataset.groupby('Segment')
+
+    for segment, data_segment in grouped_data:
+        X_segment = data_segment[X.columns]
+        p_j_segment = data_segment['Price'].values
+        u_segment = data_segment['Utility'].values
+
+        phi = data_segment['Market_share'].sum()
+        phi_list.append(phi)
+
+        I = (1-phi)*np.log(np.sum(np.exp(1/(1-phi)*u_segment)))
+        I_list.append(I)
+        
+        # Compute choice probabilities for each segment within the nest
+        pr_jn = np.exp(u_segment / (1 - phi)) / np.sum(np.exp(u_segment / (1 - phi)))
+        pr_jn_list.extend(pr_jn)  # Extend the list with segment-specific probabilities
+
+    # Compute the denominator for the entire nest
+    pr_nest = np.exp(I_list) / np.sum(np.exp(I_list))
+
+    # Final choice probabilities (normalized across all segments)
+    pr_jn_normalized = np.array(pr_jn_list) / np.sum(pr_jn_list)
+
+    return pr_jn_normalized
+
 
 def probability_ratio(dataset, year):
     
