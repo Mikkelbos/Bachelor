@@ -249,15 +249,14 @@ def straf_0ms(df):
     return df
 '''
 
-
 #Cost
 
 def cost_original(dataset, alpha):
-    s = dataset['CCP']
+    ccp = dataset['CCP']
     p_j = dataset['Price']
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
-        cost[i] = p_j[i] + (alpha/s[i])
+        cost[i] = p_j[i] + (ccp[i]/alpha)
         #Hvis cost stadig er højere end pris, så ændre "-" til "+" og køre igen
     return cost
 
@@ -267,7 +266,6 @@ def cost(dataset, alpha):
 
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
-        #cost[i] = p_j[i] + (s[i]/alpha) 
-        #cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
-        cost[i] = p_j[i]+(ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
-    return cost
+        #cost[i] = p_j[i] + (ccp[i]/alpha) 
+        cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
+        return cost
