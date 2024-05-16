@@ -28,44 +28,45 @@ def ccp(alpha, beta, X, p_j):
     return ccp_list
 '''
 
-def ccp(alpha, beta, dataset, X):
+def nest_ccp(alpha, beta, dataset, X):
     ccp_list = []  # Initialize a list to store CCP arrays for each year
 
     # Group the dataset by year
-    grouped_data = dataset.groupby('Year')
+    data = dataset.groupby('Year')
+    segment_p = dataset['Segment'].value_counts(normalize=True)
 
-    for year, data_year in grouped_data:
+    for year, data_year in data:
         X_year = data_year[X.columns]
         p_j_year = data_year['Price'].values
         
         # Utility
         
         #(u)
-        utility_year = alpha * p_j_year + np.dot(X_year, beta)
         
+        utility_year = alpha * p_j_year + np.dot(X_year, beta)
+        print(f'utility_year: {utility_year[:5]} {utility_year.shape} ')
         #(I)
         phi = dataset['Segment_ssh']
-        log_sum = 
-        I = (1-phi)*np.log(np.exp(1/(1-phi)*utility_year)).sum()
-
+        #log_sum =
         
         
+        #I = (1-phi)*np.log(np.exp(1/(1-phi)*utility_year)).sum()
 
-
+ 
 
         # CCP
-        ccp_year = np.exp(I) / np.sum(np.exp(I))
+        #ccp_year = np.exp(I) / np.sum(np.exp(I))
 
         # Reshape the CCPs to a column vector
-        ccp_reshaped = ccp_year.reshape(-1, 1)
+        #ccp_reshaped = ccp_year.reshape(-1, 1)
 
         # Append
-        ccp_list.append(ccp_reshaped)
+        #ccp_list.append(ccp_reshaped)
 
     # Stack the CCP arrays vertically
-    ccp_array = np.vstack(ccp_list)
+    #ccp_array = np.vstack(ccp_list)
 
-    return ccp_array
+    #return ccp_array
 
 
 def probability_ratio(dataset, year):
