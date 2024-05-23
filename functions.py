@@ -284,24 +284,14 @@ def straf_0ms(df):
 
 
 #Treat each models as a firm
-def cost_original(dataset, alpha):
+def cost(dataset, alpha):
     ccp = dataset['CCP']
     p_j = dataset['Price']
     cost = np.zeros(len(p_j))
     for i in range(len(p_j)):
         cost[i] = p_j[i] + (ccp[i]/alpha)
-        #Hvis cost stadig er højere end pris, så ændre "-" til "+" og køre igen
     return cost
 
-def cost(dataset, alpha):
-    p_j = dataset['Price']
-    ccp = dataset['CCP']
-
-    cost = np.zeros(len(p_j))
-    for i in range(len(p_j)):
-        #cost[i] = p_j[i] + (ccp[i]/alpha) 
-        cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
-        return cost
 
 #Costs for firms
 
