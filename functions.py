@@ -282,6 +282,8 @@ def straf_0ms(df):
 
 #Cost
 
+
+#Treat each models as a firm
 def cost_original(dataset, alpha):
     ccp = dataset['CCP']
     p_j = dataset['Price']
@@ -300,3 +302,19 @@ def cost(dataset, alpha):
         #cost[i] = p_j[i] + (ccp[i]/alpha) 
         cost[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i]))) #alpha(-)*ccp(+)*(1-ccp)(+) = noget negativt
         return cost
+
+#Costs for firms
+
+def cost_firm(dataset, alpha):
+    dataset['firm_cost'] = 0
+    
+    for firm in dataset['Manufacturer'].unique():
+        for year in dataset['Year'].unique():
+            dataset_firm_year = dataset[(dataset['Manufacturer'] == firm) & (dataset['Year'] == year)]
+            
+            total_share = dataset_firm_year['CCP'].sum()
+            
+            for car in dataset_firm_year.index:
+                dataset.at[car, 'firm_cost'] = dataset.at[car, 'Price'] + (total_share / alpha)
+                
+    return dataset
