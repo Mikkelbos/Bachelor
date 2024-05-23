@@ -28,6 +28,30 @@ def ccp(alpha, beta, X, p_j):
     return ccp_list
 '''
 
+def utility(alpha, beta, dataset, X):
+    utility_list = []  # Initialize a list to store CCP arrays for each year
+
+    # Group the dataset by year
+    grouped_data = dataset.groupby('Year')
+
+    for year, data_year in grouped_data:
+        X_year = data_year[X.columns]
+        p_j_year = data_year['Price'].values
+        
+        # Utility
+        utility_year = alpha * p_j_year + np.dot(X_year, beta)
+
+        # Reshape the CCPs to a column vector
+        utility_reshaped = utility_year.reshape(-1, 1)
+
+        # Append
+        utility_list.append(utility_reshaped)
+
+    # Stack the CCP arrays vertically
+    ccp_array = np.vstack(utility_list)
+
+    return ccp_array
+
 def ccp(alpha, beta, dataset, X):
     ccp_list = []  # Initialize a list to store CCP arrays for each year
 
@@ -55,43 +79,12 @@ def ccp(alpha, beta, dataset, X):
 
     return ccp_array
 
-def nested_ccp(alpha, beta, dataset, X):
-    phi_list = []  # Initialize a list to store phi values for each year
-    I_list = []  # Initialize a list to store I values for each year
-    pr_jn_list = []  # Initialize a list to store choice probabilities for each segment
-
-    # Group the dataset by year
-    grouped_data = dataset.groupby('Segment')
-
-    for segment, data_segment in grouped_data:
-        X_segment = data_segment[X.columns]
-        p_j_segment = data_segment['Price'].values
-        u_segment = data_segment['Utility'].values
-
-        phi = data_segment['Market_share'].sum()
-        phi_list.append(phi)
-
-        I = (1-phi)*np.log(np.sum(np.exp(1/(1-phi)*u_segment)))
-        I_list.append(I)
-        
-        # Compute choice probabilities for each segment within the nest
-        pr_jn = np.exp(u_segment / (1 - phi)) / np.sum(np.exp(u_segment / (1 - phi)))
-        pr_jn_list.extend(pr_jn)  # Extend the list with segment-specific probabilities
-
-    # Compute the denominator for the entire nest
-    pr_nest = np.exp(I_list) / np.sum(np.exp(I_list))
-
-    # Final choice probabilities (normalized across all segments)
-    pr_jn_normalized = np.array(pr_jn_list) / np.sum(pr_jn_list)
-
-    return pr_jn_normalized
 
 
 def probability_ratio(dataset, year):
     
     year_data = dataset[dataset['Year'] == year].reset_index(drop=True)
 
-    # DataFrame for the specific year
     ccp_values = year_data['CCP']
     model_labels = year_data['Model']
     probability_ratio_matrix = pd.DataFrame(index=model_labels, columns=model_labels)
@@ -233,11 +226,10 @@ def cross_elasticity_1(dataset, estimation):
 
    
 
-def BLP(dataframe, instrument):
+def BLP(dataset, instrument):
     # Sum the attribute of other models
     def sum_attribute(row):
-        # Filter the DataFrame excluding the current model
-        data = dataframe[(dataframe['Year'] == row['Year']) & (dataframe['Model'] != row['Model'])]
+        data = dataset[(dataset['Year'] == row['Year']) & (dataset['Model'] != row['Model'])]
                 
         #Sum
         sum = data[instrument].sum()
@@ -245,13 +237,11 @@ def BLP(dataframe, instrument):
 
         return pd.Series({'sum': sum})
 
-    # Apply the function to each row in the DataFrame
-    new_columns = dataframe.apply(sum_attribute, axis=1)
+    new_columns = dataset.apply(sum_attribute, axis=1)
 
-    # Add the new columns to the DataFrame
-    dataframe[instrument+'_BLP'] = new_columns['sum']
+    dataset[instrument+'_BLP'] = new_columns['sum']
 
-    return dataframe
+    return dataset
 
 
 def GH(df, instrument, factor): #create instrument local sum
@@ -279,9 +269,6 @@ def straf_0ms(df):
 
     return df
 '''
-
-#Cost
-
 
 #Treat each models as a firm
 def cost(dataset, alpha):
