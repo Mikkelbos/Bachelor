@@ -280,6 +280,7 @@ def cost(dataset, alpha):
     return cost
 
 
+
 #Costs for firms
 
 def cost_firm(dataset, alpha):
@@ -295,3 +296,30 @@ def cost_firm(dataset, alpha):
                 dataset.at[car, 'firm_cost'] = dataset.at[car, 'Price'] + (total_share / alpha)
                 
     return dataset
+
+
+def markup(data):
+    #data['markup_OLD'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cost_OLD']*100
+    data['markup'] = (data['Price'] - data['firm_cost'])/data['firm_cost']*100
+    return data
+
+'''def cost_OLD(dataset, alpha):
+    ccp = dataset['CCP']
+    p_j = dataset['Price']
+    cost_OLD = np.zeros(len(p_j))
+    for i in range(len(p_j)):
+        cost_OLD[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
+    return cost_OLD
+def cost_firm_OLD(dataset, alpha):
+    dataset['firm_cost_OLD'] = 0
+    
+    for firm in dataset['Manufacturer'].unique():
+        for year in dataset['Year'].unique():
+            dataset_firm_year = dataset[(dataset['Manufacturer'] == firm) & (dataset['Year'] == year)]
+            
+            ccp = dataset_firm_year['CCP'].sum()
+            
+            for car in dataset_firm_year.index:
+                dataset.at[car, 'firm_cost_OLD'] = dataset.at[car, 'Price'] + (ccp/(alpha*ccp*(1-ccp)))
+                
+    return dataset'''
