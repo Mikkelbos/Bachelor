@@ -326,3 +326,9 @@ def cost_firm_OLD(dataset, alpha):
                 dataset.at[car, 'firm_cost_OLD'] = dataset.at[car, 'Price'] + (ccp/(alpha*ccp*(1-ccp)))
                 
     return dataset
+
+
+
+# Update car price in Iterative Best Response
+def set_car_price(x, p:float, j:int) -> None:
+    x.loc[j, 'Price'] = p
