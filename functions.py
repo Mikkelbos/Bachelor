@@ -162,30 +162,29 @@ def elasticity(dataset, estimation):
     
     return elasticity
 
-#def print_cross_elasticity(cross_elasticity, model_labels):
+'''def print_cross_elasticity(cross_elasticity, model_labels):
     #print(cross_elasticity.shape)
     #for k in range(cross_elasticity.shape[1]):
     #    print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
-
-#def cross_elasticity(dataset, coefficients, X, model_labels):
-'''def cross_elasticity(dataset, estimation):
-    
+'''
+def cross_elasticity(dataset, estimation, parameter):
+    models = dataset['Model_year']
+    cross_elasticity_table = pd.DataFrame(index=models, columns=models)
     ccp = dataset['CCP']
-    coefficients = estimation.params
-    X = dataset[estimation.index]
-    model_labels = dataset['Model_year']
+    coefficients = estimation.params[parameter]
+    X = dataset[parameter]
+
+    for i in range(len(ccp)):
+        for j in range(len(ccp)):
+            cross_elasticity_value = -coefficients * X[j] * ccp[j]
+            cross_elasticity_table.iloc[i, j] = round(cross_elasticity_value, 5)
+
+    return cross_elasticity_table
+            
+    #print_cross_elasticity(cross_elasticity, model_labels)
+    return cross_elasticity
     
-    #cross_elasticity = np.zeros((len(ccp), len(ccp), len(coefficients))) #række, colonne, højde
-        
-    for k in range(len(coefficients)):
-        for i in range(len(ccp)):
-            for j in range(len(ccp)):
-                cross_elasticity_table[i,j, k] = -coefficients[k]*X[i,k]*(ccp[j]) 
-                
-    print_cross_elasticity(cross_elasticity, model_labels)
-    #return cross_elasticity'''
-    
-def cross_elasticity(dataset, estimation):
+'''def cross_elasticity(dataset, estimation):
     
     ccp = dataset['CCP']
     coefficients = estimation.params
@@ -200,7 +199,7 @@ def cross_elasticity(dataset, estimation):
                 cross_elasticity_table[i, j, k] = -coefficients[k] * X.iloc[i, k] * ccp.iloc[j]
                 
     #print_cross_elasticity(cross_elasticity_table, model_labels)
-    return cross_elasticity_table
+    return cross_elasticity_table'''
 
 def cross_elasticity_1(dataset, estimation):
     
@@ -297,6 +296,7 @@ def cost_firm(dataset, alpha):
                 
     return dataset
 
+
 def cost_OLD(dataset, alpha):
     ccp = dataset['CCP']
     p_j = dataset['Price']
@@ -306,8 +306,15 @@ def cost_OLD(dataset, alpha):
     return cost_OLD
 
 def markup(data):
-    #data['markup%'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cost_OLD']*100 
+    #data['markup%'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cosst_OLD']*100 
     data['markup%'] = (data['Price'] - data['firm_cost'])/data['firm_cost']*100
+    return data
+
+def price_est(data, alpha):
+    ccp = data['CCP']
+    
+    for i in range(len(data)):
+        data['Price_est'][i] = data['cost_firm'][i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
     return data
 
 
@@ -332,3 +339,18 @@ def cost_firm_OLD(dataset, alpha):
 # Update car price in Iterative Best Response
 def set_car_price(x, p:float, j:int) -> None:
     x.loc[j, 'Price'] = p
+
+def IBR(data, model):
+    iterated_prices = []
+    #price_y = data[data['Model'] == model]['Price']
+    eta = data[data['Model'] == model]['markup%']
+    cost = data[data['Model'] == model]['firm_cost']
+    #print(price_y, eta)
+
+    price = 0 #Initial guess
+    iterated_prices.append(price)
+    for i in range(0,5):
+        iterated_prices[i] = cost + eta
+        iterated_prices.append(iterated_prices[i])
+                
+    return iterated_prices.shape
