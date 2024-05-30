@@ -297,12 +297,6 @@ def cost_firm(dataset, alpha):
                 
     return dataset
 
-
-def markup(data):
-    #data['markup%'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cost_OLD']*100 
-    data['markup%'] = (data['Price'] - data['firm_cost'])/data['firm_cost']*100
-    return data
-
 def cost_OLD(dataset, alpha):
     ccp = dataset['CCP']
     p_j = dataset['Price']
@@ -310,6 +304,12 @@ def cost_OLD(dataset, alpha):
     for i in range(len(p_j)):
         cost_OLD[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
     return cost_OLD
+
+def markup(data):
+    #data['markup%'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cost_OLD']*100 
+    data['markup%'] = (data['Price'] - data['firm_cost'])/data['firm_cost']*100
+    return data
+
 
 
 
