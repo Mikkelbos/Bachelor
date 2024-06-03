@@ -162,11 +162,7 @@ def elasticity(dataset, estimation):
     
     return elasticity
 
-'''def print_cross_elasticity(cross_elasticity, model_labels):
-    #print(cross_elasticity.shape)
-    #for k in range(cross_elasticity.shape[1]):
-    #    print(f'Change in : {model_labels[k]} \n {cross_elasticity[:,k:k+1,:]}')
-'''
+
 def cross_elasticity(dataset, estimation, parameter):
     models = dataset['Model_year']
     cross_elasticity_table = pd.DataFrame(index=models, columns=models)
@@ -180,26 +176,7 @@ def cross_elasticity(dataset, estimation, parameter):
             cross_elasticity_table.iloc[i, j] = round(cross_elasticity_value, 5)
 
     return cross_elasticity_table
-            
-    #print_cross_elasticity(cross_elasticity, model_labels)
-    return cross_elasticity
-    
-'''def cross_elasticity(dataset, estimation):
-    
-    ccp = dataset['CCP']
-    coefficients = estimation.params
-    X = dataset[estimation.params.index]
-    model_labels = dataset['Model_year']
-    
-    cross_elasticity_table = pd.MultiIndex.from_product([model_labels, model_labels, X])
         
-    for k in range(len(coefficients)):
-        for i in range(len(ccp)):
-            for j in range(len(ccp)):
-                cross_elasticity_table[i, j, k] = -coefficients[k] * X.iloc[i, k] * ccp.iloc[j]
-                
-    #print_cross_elasticity(cross_elasticity_table, model_labels)
-    return cross_elasticity_table'''
 
 def cross_elasticity_1(dataset, estimation):
     
@@ -257,17 +234,6 @@ def GH(df, instrument, factor): #create instrument local sum
 
     return df
 
-'''
-#Manipuler data hvor market share er 0
-def straf_0ms(df):
-    for i in range(len(df)):
-        if df['Market share'][i] == 0:
-            df['Price'][i] = 10_000_000
-            #df['HP'][i] = -df['HP'][i]
-            #df['Chargetime'][i] = -df['Chargetime'][i]
-
-    return df
-'''
 
 #Treat each models as a firm
 def cost(dataset, alpha):
@@ -297,42 +263,10 @@ def cost_firm(dataset, alpha):
     return dataset
 
 
-def cost_OLD(dataset, alpha):
-    ccp = dataset['CCP']
-    p_j = dataset['Price']
-    cost_OLD = np.zeros(len(p_j))
-    for i in range(len(p_j)):
-        cost_OLD[i] = p_j[i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
-    return cost_OLD
-
 def markup(data):
     #data['markup%'] = (data['Price'] - data['firm_cost_OLD'])/data['firm_cosst_OLD']*100 
     data['markup%'] = (data['Price'] - data['firm_cost'])/data['firm_cost']*100
     return data
-
-def price_est(data, alpha):
-    ccp = data['CCP']
-    
-    for i in range(len(data)):
-        data['Price_est'][i] = data['cost_firm'][i] + (ccp[i]/(alpha*ccp[i]*(1-ccp[i])))
-    return data
-
-
-
-
-def cost_firm_OLD(dataset, alpha):
-    dataset['firm_cost_OLD'] = 0
-    
-    for firm in dataset['Manufacturer'].unique():
-        for year in dataset['Year'].unique():
-            dataset_firm_year = dataset[(dataset['Manufacturer'] == firm) & (dataset['Year'] == year)]
-            
-            ccp = dataset_firm_year['CCP'].sum()
-            
-            for car in dataset_firm_year.index:
-                dataset.at[car, 'firm_cost_OLD'] = dataset.at[car, 'Price'] + (ccp/(alpha*ccp*(1-ccp)))
-                
-    return dataset
 
 
 
