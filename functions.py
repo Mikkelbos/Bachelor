@@ -274,7 +274,7 @@ def markup(data):
 def set_car_price(x, p:float, j:int) -> None:
     x.loc[j, 'Price'] = p
 
-def IBR(data, model):
+'''def IBR(data, model):
     iterated_prices = []
     #price_y = data[data['Model'] == model]['Price']
     eta = data[data['Model'] == model]['markup%']
@@ -287,4 +287,13 @@ def IBR(data, model):
         iterated_prices[i] = cost + eta
         iterated_prices.append(iterated_prices[i])
                 
-    return iterated_prices.shape
+    return iterated_prices.shape'''
+
+def outside_sub(data):
+    outside_sub_table = pd.DataFrame(index = data['product_ids'], columns= ['outside_sub'])
+    for j in range(len(data)):
+        nominator = data['outside_share'][j]
+        denominator =(1-data['shares'][j])
+        outside_sub = 100*nominator/denominator
+        outside_sub_table.loc[data['product_ids'][j], 'outside_sub'] = outside_sub
+    return outside_sub_table
