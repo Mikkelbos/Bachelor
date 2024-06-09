@@ -1,0 +1,11 @@
+pyblp
+numpy
+pandas
+statsmodels
+linearmodels
+matplotlib
+ipython
+tabulate
+scipy
+seaborn
+plotly
